@@ -1,6 +1,11 @@
 use std::io::{BufWriter, Write};
 
+use pool::Pool;
+
 use field::Entry;
+
+const DEFAULT_POOL_CAPACITY: usize = 1024;
+const DEFAULT_BUFFER_SIZE: usize = 2048;
 
 /// `Level` represents the logging level for a specific line.
 pub enum Level {
@@ -13,11 +18,12 @@ pub enum Level {
 
 /// `Logger` can serialize logs to anyting that implements `Write`.
 pub struct Logger<W: Write> {
-    location: BufWriter<W>,
+    output: BufWriter<W>,
+    buffer_pool: Pool<Vec<u8>>,
 }
 
 impl<W: Write> Logger<W> {
-    /// Create a new `Logger` for the given location.
+    /// Create a new `Logger` for the given output.
     ///
     /// # Example
     /// ```rust
@@ -27,17 +33,13 @@ impl<W: Write> Logger<W> {
     ///
     /// let l = Logger::new(io::stdout());
     /// ```
-    pub fn new(location: W) -> Logger<W> {
+    pub fn new(output: W) -> Logger<W> {
+        let buffer_pool = Pool::with_capacity(DEFAULT_POOL_CAPACITY, 0, || {
+            Vec::with_capacity(DEFAULT_BUFFER_SIZE)
+        });
         Logger {
-            location: BufWriter::new(location),
+            output: BufWriter::new(output),
+            buffer_pool: buffer_pool,
         }
-    }
-
-    // FIXME: Make a macro and generalize this for all levels.
-    pub fn info(&mut self, msg: &str, fields: &mut Entry) {
-        fields.set_level(Level::Info);
-        fields.add_field("msg", msg);
-        let line = fields.finish();
-        self.location.write_all(line.as_bytes()).unwrap();
     }
 }
