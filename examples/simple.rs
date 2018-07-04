@@ -18,11 +18,16 @@ fn main() {
     l.log(
         Entry::new(None, JsonEncoder)
             .str("time", "now")
+            .float("float", 777.0 / 1000.0)
             .msg("another line but without a level"),
     );
 
     // This debug log will not be logged since it is lower than info level.
     l.log(Entry::new(Some(Level::Debug), JsonEncoder).msg("will not be seen"));
 
-    l.log(Entry::new(Some(Level::Warn), JsonEncoder).msg("a warning"));
+    l.log(
+        Entry::new(Some(Level::Warn), JsonEncoder)
+            .integer("number", 7)
+            .msg("a warning"),
+    );
 }

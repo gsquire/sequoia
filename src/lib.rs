@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate lazy_static;
 
+extern crate dtoa;
+extern crate itoa;
 extern crate parking_lot;
 extern crate pool;
 

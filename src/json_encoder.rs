@@ -1,5 +1,8 @@
 use std::io::Write;
 
+use dtoa::{self, Floating};
+use itoa::{self, Integer};
+
 use encoder::Encoder;
 
 /// A type that can encode log lines as JSON.
@@ -24,6 +27,14 @@ impl Encoder for JsonEncoder {
         dst.write(b"\"").unwrap();
         dst.write(value.as_bytes()).unwrap();
         dst.write(b"\"").unwrap();
+    }
+
+    fn append_integer<V: Integer>(&self, dst: &mut Vec<u8>, value: V) {
+        itoa::write(dst, value).unwrap();
+    }
+
+    fn append_float<V: Floating>(&self, dst: &mut Vec<u8>, value: V) {
+        dtoa::write(dst, value).unwrap();
     }
 
     fn append_end(&self, dst: &mut Vec<u8>) {

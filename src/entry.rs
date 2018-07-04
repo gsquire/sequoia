@@ -1,3 +1,5 @@
+use dtoa::Floating;
+use itoa::Integer;
 use parking_lot::Mutex;
 use pool::{Checkout, Pool};
 
@@ -62,6 +64,20 @@ impl<E: Encoder> Entry<E> {
     pub fn str(mut self, key: &str, value: &str) -> Entry<E> {
         self.encoder.append_key(&mut self.buffer, key);
         self.encoder.append_string(&mut self.buffer, value);
+        self
+    }
+
+    /// Add an integer type value.
+    pub fn integer<V: Integer>(mut self, key: &str, value: V) -> Entry<E> {
+        self.encoder.append_key(&mut self.buffer, key);
+        self.encoder.append_integer(&mut self.buffer, value);
+        self
+    }
+
+    /// Add a float type value.
+    pub fn float<V: Floating>(mut self, key: &str, value: V) -> Entry<E> {
+        self.encoder.append_key(&mut self.buffer, key);
+        self.encoder.append_float(&mut self.buffer, value);
         self
     }
 
