@@ -6,6 +6,7 @@ use logger::Level;
 
 const DEFAULT_POOL_CAPACITY: usize = 1024;
 const DEFAULT_BUFFER_SIZE: usize = 2048;
+const MSG_KEY: &str = "msg";
 
 lazy_static! {
     static ref BUFFER_POOL: Mutex<Pool<Vec<u8>>> = {
@@ -24,6 +25,7 @@ fn get_buffer() -> Checkout<Vec<u8>> {
 /// An `Entry` represents an individual log line made up of `Field`s.
 pub struct Entry<E: Encoder> {
     encoder: E,
+    level: Option<Level>,
     buffer: Checkout<Vec<u8>>,
 }
 
@@ -41,8 +43,18 @@ impl<E: Encoder> Entry<E> {
 
         Entry {
             encoder: encoder,
+            level: level,
             buffer: buffer,
         }
+    }
+
+    /// Get the log level associated with this entry.
+    #[inline]
+    pub fn level(&self) -> Option<Level> {
+        if let Some(ref l) = self.level {
+            return Some(l.clone());
+        }
+        None
     }
 
     /// Add a string value to the `Entry`.
@@ -52,11 +64,15 @@ impl<E: Encoder> Entry<E> {
         self
     }
 
-    /// Add the top-level message for this `Entry` which completes the log message. This message
-    /// will now be ready to be added to the logger.
-    pub fn msg(&mut self, msg: &str) -> &[u8] {
-        self.encoder.append_key(&mut self.buffer, "msg");
+    /// Add the top-level message for this `Entry`.
+    pub fn msg(mut self, msg: &str) -> Entry<E> {
+        self.encoder.append_key(&mut self.buffer, MSG_KEY);
         self.encoder.append_string(&mut self.buffer, msg);
+        self
+    }
+
+    /// Finish the log message making it ready for the underlying writer.
+    pub fn finish(&mut self) -> &[u8] {
         self.encoder.append_end(&mut self.buffer);
         self.encoder.append_line_break(&mut self.buffer);
         &self.buffer

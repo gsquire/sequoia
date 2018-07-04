@@ -1,5 +1,8 @@
 use std::io::{BufWriter, Write};
 
+use encoder::Encoder;
+use entry::Entry;
+
 /// `Level` represents the logging level for a specific line.
 #[derive(Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Level {
@@ -50,10 +53,13 @@ impl<W: Write> Logger<W> {
         self.level = l;
     }
 
-    /// Write an `Entry` at the Info level.
-    pub fn info(&mut self, entry: &[u8]) {
-        if self.level >= Level::Info {
-            if let Err(e) = self.output.write_all(entry) {
+    /// Write an `Entry` to the writer.
+    pub fn log<E: Encoder>(&mut self, mut entry: Entry<E>) {
+        // We default to Fatal since that will always be printed.
+        let entry_level = entry.level().unwrap_or(Level::Fatal);
+
+        if entry_level >= self.level {
+            if let Err(e) = self.output.write_all(entry.finish()) {
                 eprintln!("error writing log line: {}", e);
             }
         }

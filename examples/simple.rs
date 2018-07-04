@@ -7,14 +7,20 @@ use sequoia::{Entry, Level, Logger};
 
 fn main() {
     let mut l = Logger::new(io::stdout());
-    l.info(
+    // Log something at the info level.
+    l.log(
         Entry::new(Some(Level::Info), JsonEncoder)
             .str("key", "value")
             .msg("testing"),
     );
-    l.info(
+
+    // Entries without a level will always be logged.
+    l.log(
         Entry::new(None, JsonEncoder)
             .str("time", "now")
             .msg("another line but without a level"),
     );
+
+    // This debug log will not be logged since it is lower than info level.
+    l.log(Entry::new(Some(Level::Debug), JsonEncoder).msg("will not be seen"));
 }
