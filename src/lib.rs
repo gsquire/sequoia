@@ -8,6 +8,8 @@ mod encoder;
 mod entry;
 mod logger;
 
+pub mod json_encoder;
+
 pub use entry::Entry;
 pub use logger::Level;
 pub use logger::Logger;

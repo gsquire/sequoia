@@ -2,12 +2,14 @@ extern crate sequoia;
 
 use std::io;
 
-use sequoia::{Entry, Logger};
+use sequoia::json_encoder::JsonEncoder;
+use sequoia::{Entry, Level, Logger};
 
 fn main() {
     let mut l = Logger::new(io::stdout());
-    let mut entry = Entry::new();
-    entry.add_field("count", 7);
-
-    l.info("test", &mut entry);
+    l.info(
+        Entry::new(Some(Level::Info), JsonEncoder)
+            .str("key", "value")
+            .msg("testing"),
+    );
 }

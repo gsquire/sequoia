@@ -42,7 +42,7 @@ impl<W: Write> Logger<W> {
     /// Set the level of the logger.
     ///
     /// # Example
-    /// ```rust, no_run
+    /// ```ignore
     /// let mut l = Logger::new(io::stdout());
     /// l.set_level(Level::Debug);
     /// ```
@@ -53,7 +53,9 @@ impl<W: Write> Logger<W> {
     /// Write an `Entry` at the Info level.
     pub fn info(&mut self, entry: &[u8]) {
         if self.level >= Level::Info {
-            self.output.write_all(entry);
+            if let Err(e) = self.output.write_all(entry) {
+                eprintln!("error writing log line: {}", e);
+            }
         }
     }
 }
