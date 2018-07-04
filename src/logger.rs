@@ -1,10 +1,30 @@
+use std::collections::HashMap;
 use std::io::{BufWriter, Write};
 
 use encoder::Encoder;
 use entry::Entry;
 
+lazy_static! {
+    static ref LEVEL_STRING_LOOKUP: HashMap<Level, &'static str> = {
+        let mut m = HashMap::new();
+        m.insert(Level::Debug, "debug");
+        m.insert(Level::Info, "info");
+        m.insert(Level::Warn, "warn");
+        m.insert(Level::Error, "error");
+        m.insert(Level::Fatal, "fatal");
+        m
+    };
+}
+
+/// Get the string for logging that is associated with the given `Level`.
+#[inline]
+pub fn level_string(l: Level) -> &'static str {
+    // It is safe to unwrap here since we have an enum key.
+    LEVEL_STRING_LOOKUP.get(&l).unwrap()
+}
+
 /// `Level` represents the logging level for a specific line.
-#[derive(Clone, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Hash, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Level {
     /// Debug is the lowest level (0).
     Debug = 0,

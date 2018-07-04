@@ -2,11 +2,12 @@ use parking_lot::Mutex;
 use pool::{Checkout, Pool};
 
 use encoder::Encoder;
-use logger::Level;
+use logger::{self, Level};
 
 const DEFAULT_POOL_CAPACITY: usize = 1024;
 const DEFAULT_BUFFER_SIZE: usize = 2048;
 const MSG_KEY: &str = "msg";
+const LEVEL_KEY: &str = "level";
 
 lazy_static! {
     static ref BUFFER_POOL: Mutex<Pool<Vec<u8>>> = {
@@ -35,10 +36,10 @@ impl<E: Encoder> Entry<E> {
         let mut buffer = get_buffer();
         encoder.append_start(&mut buffer);
 
-        // TODO: Make a lookup map for the levels or just do `ToString`?
-        if let Some(_) = level {
-            encoder.append_key(&mut buffer, "level");
-            encoder.append_string(&mut buffer, "info");
+        if let Some(ref l) = level {
+            let level_value = logger::level_string(l.clone());
+            encoder.append_key(&mut buffer, LEVEL_KEY);
+            encoder.append_string(&mut buffer, level_value);
         }
 
         Entry {

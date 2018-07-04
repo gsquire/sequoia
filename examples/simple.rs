@@ -23,4 +23,6 @@ fn main() {
 
     // This debug log will not be logged since it is lower than info level.
     l.log(Entry::new(Some(Level::Debug), JsonEncoder).msg("will not be seen"));
+
+    l.log(Entry::new(Some(Level::Warn), JsonEncoder).msg("a warning"));
 }
