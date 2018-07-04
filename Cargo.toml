@@ -4,4 +4,6 @@ version = "0.1.0"
 authors = ["Garrett Squire <garrettsquire@gmail.com>"]
 
 [dependencies]
+lazy_static = "1.0"
+parking_lot = "0.6"
 pool = "0.1"
