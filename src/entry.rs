@@ -1,5 +1,5 @@
 use parking_lot::Mutex;
-use pool::Pool;
+use pool::{Checkout, Pool};
 
 use encoder::Encoder;
 use logger::Level;
@@ -7,10 +7,8 @@ use logger::Level;
 const DEFAULT_POOL_CAPACITY: usize = 1024;
 const DEFAULT_BUFFER_SIZE: usize = 2048;
 
-// TODO: How can we make this smarter so it doesn't put the buffer back in the pool when it is
-// dropped?
 lazy_static! {
-    static ref _BUFFER_POOL: Mutex<Pool<Vec<u8>>> = {
+    static ref BUFFER_POOL: Mutex<Pool<Vec<u8>>> = {
         let p = Mutex::new(Pool::with_capacity(DEFAULT_POOL_CAPACITY, 0, || {
             Vec::with_capacity(DEFAULT_BUFFER_SIZE)
         }));
@@ -18,16 +16,21 @@ lazy_static! {
     };
 }
 
+fn get_buffer() -> Checkout<Vec<u8>> {
+    let mut p = BUFFER_POOL.lock();
+    p.checkout().unwrap()
+}
+
 /// An `Entry` represents an individual log line made up of `Field`s.
 pub struct Entry<E: Encoder> {
     encoder: E,
-    buffer: Vec<u8>,
+    buffer: Checkout<Vec<u8>>,
 }
 
 impl<E: Encoder> Entry<E> {
     /// Return a blank `Entry`.
     pub fn new(level: Option<Level>, encoder: E) -> Entry<E> {
-        let mut buffer = vec![];
+        let mut buffer = get_buffer();
         encoder.append_start(&mut buffer);
 
         // TODO: Make a lookup map for the levels or just do `ToString`?
