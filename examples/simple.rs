@@ -12,4 +12,9 @@ fn main() {
             .str("key", "value")
             .msg("testing"),
     );
+    l.info(
+        Entry::new(None, JsonEncoder)
+            .str("time", "now")
+            .msg("another line but without a level"),
+    );
 }

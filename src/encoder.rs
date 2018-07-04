@@ -11,4 +11,7 @@ pub trait Encoder {
 
     /// Append the closing delimiter to the buffer if there is one.
     fn append_end(&self, dst: &mut Vec<u8>);
+
+    /// Append a line break to the log.
+    fn append_line_break(&self, dst: &mut Vec<u8>);
 }

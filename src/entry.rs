@@ -55,6 +55,7 @@ impl<E: Encoder> Entry<E> {
         self.encoder.append_key(&mut self.buffer, "msg");
         self.encoder.append_string(&mut self.buffer, msg);
         self.encoder.append_end(&mut self.buffer);
+        self.encoder.append_line_break(&mut self.buffer);
         &self.buffer
     }
 }

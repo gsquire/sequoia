@@ -29,4 +29,8 @@ impl Encoder for JsonEncoder {
     fn append_end(&self, dst: &mut Vec<u8>) {
         dst.write(b"}").unwrap();
     }
+
+    fn append_line_break(&self, dst: &mut Vec<u8>) {
+        dst.write(b"\n").unwrap();
+    }
 }
