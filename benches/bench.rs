@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate criterion;
+
 extern crate sequoia;
 
 use criterion::Criterion;
